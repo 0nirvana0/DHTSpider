@@ -1,39 +1,36 @@
 package com.zx.dhtspider.test;
 
-import com.zx.dhtspider.constant.SpiderConstant;
-import com.zx.dhtspider.model.Node;
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Deque;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.turn.ttorrent.bcodec.BDecoder;
+import com.turn.ttorrent.bcodec.BEValue;
+import com.turn.ttorrent.bcodec.InvalidBEncodingException;
+import com.zx.dhtspider.constant.SpiderConstant;
+import com.zx.dhtspider.model.Node;
+import com.zx.dhtspider.model.Table;
 
 /**
  * DHT爬虫工具类 Created by zx on 2015/10/4.
  */
 public class SpiderUtils {
-	private static MessageDigest messageDigest;
-	private static Random random;
+
 	final static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
 			'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-	static {
-		try {
-			messageDigest = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		random = new Random(new Date().getTime());
-	}
-
-	public static void main(String[] args) {
-		byte[] bytes = buildNodeId();
-		System.out.println(Arrays.toString(bytes));
-		System.out.println(bytesToHexString(bytes));
-		System.out.println(toUnsignedString(new BigDecimal("1461501637330902918203684832716283019655932542975"), 16));
-	}
 
 	public static String toUnsignedString(BigDecimal bigDecimal, int shift) {
 		BigDecimal divisor = new BigDecimal(shift);
@@ -53,10 +50,9 @@ public class SpiderUtils {
 	public static byte[] buildNodeId() {
 		byte[] bytes = new byte[20];
 		for (int i = 0; i < bytes.length; i++) {
-			bytes[i] = (byte) random.nextInt(256);
+			bytes[i] = (byte) digits[(int) (Math.random() * digits.length)];
 		}
-		messageDigest.update(bytes);
-		return messageDigest.digest();
+		return bytes;
 	}
 
 	public static String bytesToHexString(byte[] src) {
@@ -86,59 +82,50 @@ public class SpiderUtils {
 		return result;
 	}
 
-	public static List<Node> getNodesInfo(String src) throws UnsupportedEncodingException {
+	public static List<Node> getNodesInfo(byte[] nodesData) throws InvalidBEncodingException, IOException {
 		List<Node> result = new ArrayList<Node>();
-		if (src != null) {
-			Pattern pattern = Pattern.compile("5:nodes(.*)", Pattern.DOTALL);
-			Matcher matcher = pattern.matcher(src);
-			String nodesInfoStr = null;
-			if (matcher.find()) {
-				nodesInfoStr = matcher.group(1);
-			}
-			if (nodesInfoStr != null) {
-				int start = nodesInfoStr.indexOf(":");
-				int nodesInfoLength = Integer.parseInt(nodesInfoStr.substring(0, start));
-				byte[] nodesInfo = new byte[nodesInfoLength];
-				nodesInfoStr = nodesInfoStr.substring(start + 1);
-				try {
-					byte[] nodesInfoSrc = nodesInfoStr.getBytes("utf-8");
-					for (int i = 0; i < nodesInfoLength; i++) {
-						nodesInfo[i] = nodesInfoSrc[i];
+		if (nodesData != null) {
+			System.out.println(new String(nodesData));
+			BEValue resBEval = BDecoder.bdecode(new ByteArrayInputStream(nodesData));
+			Map<String, BEValue> resMap = resBEval.getMap();
+			String t = resMap.get("t").getString();
+			String y = resMap.get("y").getString();
+			Map<String, BEValue> resDataMap = resMap.get("r").getMap();
+			byte[] id = resDataMap.get("id").getBytes();
+			byte[] nodesInfo = resDataMap.get("nodes").getBytes();
+			int nodesInfoLength = nodesInfo.length;
+
+			for (int i = 0; i < nodesInfoLength / SpiderConstant.NODE_INFO_LENGTH_ON_DHT; i++) {
+				Node node;
+				byte[] nodeId = new byte[20];
+				String nodeIp;
+				byte[] nodeIpBytes = new byte[4];
+				int nodePort;
+				byte[] nodePortBytes = new byte[2];
+				for (int j = i * SpiderConstant.NODE_INFO_LENGTH_ON_DHT; j < (i + 1)
+						* SpiderConstant.NODE_INFO_LENGTH_ON_DHT; j++) {
+					if (j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_ID_LAST_INDEX) {
+						nodeId[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT] = nodesInfo[j];
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				for (int i = 0; i < nodesInfoLength / SpiderConstant.NODE_INFO_LENGTH_ON_DHT; i++) {
-					Node node;
-					byte[] nodeId = new byte[20];
-					String nodeIp;
-					byte[] nodeIpBytes = new byte[4];
-					int nodePort;
-					byte[] nodePortBytes = new byte[2];
-					for (int j = i * SpiderConstant.NODE_INFO_LENGTH_ON_DHT; j < (i + 1)
-							* SpiderConstant.NODE_INFO_LENGTH_ON_DHT; j++) {
-						if (j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_ID_LAST_INDEX) {
-							nodeId[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT] = nodesInfo[j];
-						}
-						if (SpiderConstant.NODE_INFO_ID_LAST_INDEX < j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT && j
-								% SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_IP_LAST_INDEX) {
-							nodeIpBytes[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
-									- SpiderConstant.NODE_INFO_ID_LAST_INDEX - 1] = nodesInfo[j];
-						}
-						if (SpiderConstant.NODE_INFO_IP_LAST_INDEX < j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT && j
-								% SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_PORT_LAST_INDEX) {
-							nodePortBytes[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
-									- SpiderConstant.NODE_INFO_IP_LAST_INDEX - 1] = nodesInfo[j];
-						}
+					if (SpiderConstant.NODE_INFO_ID_LAST_INDEX < j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
+							&& j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_IP_LAST_INDEX) {
+						nodeIpBytes[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT - SpiderConstant.NODE_INFO_ID_LAST_INDEX
+								- 1] = nodesInfo[j];
 					}
-					long ip_temp = Long.parseLong(bytesToHexString(nodeIpBytes), 16);
-					nodeIp = long2IpAdress(ip_temp);
-					nodePort = Integer.parseInt(bytesToHexString(nodePortBytes), 16);
-					node = new Node(nodeId, nodeIp, nodePort);
-					result.add(node);
+					if (SpiderConstant.NODE_INFO_IP_LAST_INDEX < j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
+							&& j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_PORT_LAST_INDEX) {
+						nodePortBytes[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
+								- SpiderConstant.NODE_INFO_IP_LAST_INDEX - 1] = nodesInfo[j];
+					}
 				}
+				long ip_temp = Long.parseLong(bytesToHexString(nodeIpBytes), 16);
+				nodeIp = long2IpAdress(ip_temp);
+				nodePort = Integer.parseInt(bytesToHexString(nodePortBytes), 16);
+				node = new Node(nodeId, nodeIp, nodePort);
+				result.add(node);
 			}
 		}
+
 		return result;
 	}
 

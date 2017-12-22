@@ -1,10 +1,12 @@
 package com.zx.dhtspider.thread;
 
+import com.turn.ttorrent.bcodec.InvalidBEncodingException;
 import com.zx.dhtspider.model.Node;
 import com.zx.dhtspider.model.Table;
 import com.zx.dhtspider.socket.DHTClient;
 import com.zx.dhtspider.test.SpiderUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -30,6 +32,12 @@ public class NodeFinder implements Runnable {
 				System.out.println("node:" + node);
 			}
 		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (InvalidBEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -23,21 +23,23 @@ public class Main {
 	 */
 	public static void main(String[] args) throws UnsupportedEncodingException {
 		DHTClient dhtClient = new DHTClient("67.215.246.10", 6881);// 67.215.246.10
-		for (int i = 0; i < 20; i++) {
-			try {
+		try {
+			for (int i = 0; i < 20; i++) {
+
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				List<Node> nodeList = SpiderUtils.getNodesInfo(dhtClient.findNodeOnDHT(SpiderUtils.buildNodeId()));
+				for (Node node : nodeList) {
+					Table.appendNode(node);
+				}
 			}
-			List<Node> nodeList = SpiderUtils.getNodesInfo(dhtClient.findNodeOnDHT(SpiderUtils.buildNodeId()));
-			for (Node node : nodeList) {
-				Table.appendNode(node);
+			for (Bucket bucket : Table.getBuckets()) {
+				for (Node node : bucket.getNodes()) {
+					new NodeFinder(node.getIp(), node.getPort(), node.getId()).run();
+					// new Thread(new NodeFinder(node.getIp(), node.getPort(), node.getId())).start();
+				}
 			}
-		}
-		for (Bucket bucket : Table.getBuckets()) {
-			for (Node node : bucket.getNodes()) {
-				new Thread(new NodeFinder(node.getIp(), node.getPort(), node.getId())).start();
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
