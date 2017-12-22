@@ -6,7 +6,7 @@ package com.zx.dhtspider.constant;
 public interface SpiderConstant {
 
     /** Node ID最小值 */
-    public final static String NODE_ID_MIN = "0";
+    public final static String NODE_ID_MIN = "0"; 
 
     /** Node ID最大值 */
     public final static String NODE_ID_MAX = "1461501637330902918203684832716283019655932542975";
