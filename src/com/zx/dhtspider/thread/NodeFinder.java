@@ -29,7 +29,7 @@ public class NodeFinder implements Runnable {
 			List<Node> nodeList = SpiderUtils.getNodesInfo(dhtClient.findNodeOnDHT(nodeTargetId));
 			for (Node node : nodeList) {
 				Table.appendNode(node);
-				System.out.println("node:" + node);
+				
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import com.zx.dhtspider.model.Table;
@@ -38,21 +39,25 @@ public class DHTClient {
 	}
 
 	public byte[] sendData(String data) {
+		System.out.println("=========================");
 		if (checkFieldStatus()) {
-			sendPacket = new DatagramPacket(data.getBytes(), data.getBytes().length, inetAddress, port);
-			System.out.println(data);
+			sendPacket = new DatagramPacket(data.getBytes(StandardCharsets.ISO_8859_1), data.length(), inetAddress,
+					port);
+			System.out.println("ip" + sendPacket.getAddress());
+			System.out.println("data" + data);
+
 			try {
 				sender.send(sendPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			byte[] bytes = new byte[10240];
+			byte[] bytes = new byte[1024];
 			DatagramPacket recvPacket = new DatagramPacket(bytes, bytes.length);
 			try {
 				sender.receive(recvPacket);
 				return recvPacket.getData();
 			} catch (SocketTimeoutException e) {
-				System.err.println(inetAddress.toString() + ":" + port + " connected time out.\n" + data);
+				System.err.println(inetAddress.toString() + ":" + port + " connected time out.\n");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -61,9 +66,9 @@ public class DHTClient {
 	}
 
 	public byte[] findNodeOnDHT(byte[] nodeId) {
-		String data = "d1:ad2:id20:" + new String(Table.getId()) + "6:target20:" + new String(nodeId)
-				+ "e1:q9:find_node1:t2:aa1:y1:qe";
-		System.out.println("nodeId:" + Arrays.toString(nodeId));
+		String data = "d1:ad2:id20:" + new String(Table.getId(), StandardCharsets.ISO_8859_1) + "6:target20:"
+				+ new String(nodeId, StandardCharsets.ISO_8859_1) + "e1:q9:find_node1:t2:aa1:y1:qe";
+
 		return sendData(data);
 	}
 

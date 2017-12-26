@@ -85,7 +85,6 @@ public class SpiderUtils {
 	public static List<Node> getNodesInfo(byte[] nodesData) throws InvalidBEncodingException, IOException {
 		List<Node> result = new ArrayList<Node>();
 		if (nodesData != null) {
-			System.out.println(new String(nodesData));
 			BEValue resBEval = BDecoder.bdecode(new ByteArrayInputStream(nodesData));
 			Map<String, BEValue> resMap = resBEval.getMap();
 			String t = resMap.get("t").getString();
