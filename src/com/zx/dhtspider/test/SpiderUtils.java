@@ -94,28 +94,24 @@ public class SpiderUtils {
 			byte[] id = resDataMap.get("id").getBytes();
 			byte[] nodesInfo = resDataMap.get("nodes").getBytes();
 			int nodesInfoLength = nodesInfo.length;
-
-			for (int i = 0; i < nodesInfoLength / SpiderConstant.NODE_INFO_LENGTH_ON_DHT; i++) {
+			int nodeLength = SpiderConstant.NODE_INFO_LENGTH_ON_DHT;
+			for (int i = 0; i < nodesInfoLength / nodeLength; i++) {
 				Node node;
 				byte[] nodeId = new byte[20];
 				String nodeIp;
 				byte[] nodeIpBytes = new byte[4];
 				int nodePort;
 				byte[] nodePortBytes = new byte[2];
-				for (int j = i * SpiderConstant.NODE_INFO_LENGTH_ON_DHT; j < (i + 1)
-						* SpiderConstant.NODE_INFO_LENGTH_ON_DHT; j++) {
-					if (j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_ID_LAST_INDEX) {
-						nodeId[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT] = nodesInfo[j];
+				for (int j = i * nodeLength; j < (i + 1) * nodeLength; j++) {
+					if (j % nodeLength <= SpiderConstant.NODE_INFO_ID_LAST_INDEX) {
+						nodeId[j % nodeLength] = nodesInfo[j];
 					}
-					if (SpiderConstant.NODE_INFO_ID_LAST_INDEX < j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
-							&& j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_IP_LAST_INDEX) {
-						nodeIpBytes[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT - SpiderConstant.NODE_INFO_ID_LAST_INDEX
-								- 1] = nodesInfo[j];
+					if (SpiderConstant.NODE_INFO_ID_LAST_INDEX < j % nodeLength
+							&& j % nodeLength <= SpiderConstant.NODE_INFO_IP_LAST_INDEX) {
+						nodeIpBytes[j % nodeLength - SpiderConstant.NODE_INFO_ID_LAST_INDEX - 1] = nodesInfo[j];
 					}
-					if (SpiderConstant.NODE_INFO_IP_LAST_INDEX < j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
-							&& j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT <= SpiderConstant.NODE_INFO_PORT_LAST_INDEX) {
-						nodePortBytes[j % SpiderConstant.NODE_INFO_LENGTH_ON_DHT
-								- SpiderConstant.NODE_INFO_IP_LAST_INDEX - 1] = nodesInfo[j];
+					if (SpiderConstant.NODE_INFO_IP_LAST_INDEX < j % nodeLength && j % nodeLength <= nodeLength) {
+						nodePortBytes[j % nodeLength - SpiderConstant.NODE_INFO_IP_LAST_INDEX - 1] = nodesInfo[j];
 					}
 				}
 				long ip_temp = Long.parseLong(bytesToHexString(nodeIpBytes), 16);
