@@ -24,7 +24,7 @@ public class Main {
 	public static void main(String[] args) throws UnsupportedEncodingException {
 		DHTClient dhtClient = new DHTClient("67.215.246.10", 6881);// 67.215.246.10
 		try {
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < 5; i++) {
 
 				Thread.sleep(1000);
 				List<Node> nodeList = SpiderUtils.getNodesInfo(dhtClient.findNodeOnDHT(SpiderUtils.buildNodeId()));

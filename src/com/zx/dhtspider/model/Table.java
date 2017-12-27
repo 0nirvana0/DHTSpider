@@ -45,13 +45,14 @@ public class Table {
 		Bucket bucket = buckets.get(index);
 		try {
 			bucket.appendNode(node);
-			// System.out.println(node);
+			System.out.println("node:" + node);
 		} catch (Exception e) {
 			if (!bucket.nodeIdInRange(node.getId())) {
 				return;
 			}
 			spilt_bucket(index);
-			appendNode(node);
+			// appendNode(node);
+
 		}
 	}
 
