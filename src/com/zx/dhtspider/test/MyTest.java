@@ -1,32 +1,22 @@
 package com.zx.dhtspider.test;
 
 import java.io.ByteArrayInputStream;
-<<<<<<< HEAD
-=======
 import java.io.IOException;
->>>>>>> refs/remotes/origin/master
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-<<<<<<< HEAD
-import java.util.Arrays;
-=======
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
->>>>>>> refs/remotes/origin/master
 import java.util.Map;
 import java.util.Random;
 
-<<<<<<< HEAD
-import com.sun.org.apache.bcel.internal.generic.NEW;
-=======
->>>>>>> refs/remotes/origin/master
 import com.turn.ttorrent.bcodec.BDecoder;
 import com.turn.ttorrent.bcodec.BEValue;
+import com.turn.ttorrent.util.SpiderUtils;
 
 public class MyTest {
 	static MyTest test = new MyTest();
@@ -39,16 +29,7 @@ public class MyTest {
 	}
 
 	private void udpTest() {
-<<<<<<< HEAD
-		try {
-			String data = "d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe";
-			InetAddress inetAddress = InetAddress.getByName("67.215.246.10");
-			int port = 6881;
-			DatagramSocket sender = new DatagramSocket();
-			sender.setSoTimeout(5000);
-			DatagramPacket sendPacket = new DatagramPacket(data.getBytes(), data.getBytes().length, inetAddress, port);
-			sender.send(sendPacket);
-=======
+
 		byte[] id;
 		byte[] target;
 		String ip;
@@ -59,39 +40,11 @@ public class MyTest {
 			System.out.println("接收 ============================");
 			target = getRandomString(20).getBytes(StandardCharsets.ISO_8859_1);
 			byte[] recvPacketData = findNodeOnDHT(idp, target, "67.215.246.10", 6881);
->>>>>>> refs/remotes/origin/master
 
-<<<<<<< HEAD
-			// Thread.sleep(5000);
-			//
 			// ============================
-			byte[] bytes = new byte[1024];
-			DatagramPacket recvPacket = new DatagramPacket(bytes, bytes.length);
-			sender.receive(recvPacket);
-			byte[] nodesData = recvPacket.getData();
-			// System.out.println("ip::" +
-			// recvPacket.getAddress().getHostAddress() + "\nport::" +
-			// recvPacket.getPort()
-			// + "\ndata::" + new String(recvPacket.getData(), "ISO8859-1"));
-			sender.close();
-			// ============================
-			BEValue resBEval = BDecoder.bdecode(new ByteArrayInputStream(nodesData));
-			Map<String, BEValue> resMap = resBEval.getMap();
-			Map<String, BEValue> resDataMap = resMap.get("r").getMap();
-			byte[] nodesInfo = resDataMap.get("nodes").getBytes();
-			byte[] id = resDataMap.get("id").getBytes();
-			byte[] node = Arrays.copyOf(nodesInfo, 20);
-			System.out.println(Arrays.toString(id));
-			System.out.println(Arrays.toString(nodesInfo));
-			System.out.println(Arrays.toString(node));
-			System.out.println(new String(node, "ISO8859-1"));
-=======
-			// System.out.println("ip:" + "67.215.246.10/6881");
-			// System.out.println("解析 ============================");
+
 			List<NodeTest> nodes = getNodesInfo(recvPacketData);
 			int j = 0;
->>>>>>> refs/remotes/origin/master
-
 			for (NodeTest node : nodes) {
 				System.out.println("  " + (i + 1) + "-" + ++j + "  ============================");
 				id = node.getId();
@@ -101,12 +54,9 @@ public class MyTest {
 
 				// System.out.println(" ip:" + ip + "/" + port);
 				recvPacketData = findNodeOnDHT(idp, target, ip, port);
-				if (recvPacketData != null) {
+				if (recvPacketData != null)
 					sum++;
-				}
-
 			}
-
 		}
 		System.out.println(" sum:" + sum);
 
@@ -211,8 +161,10 @@ public class MyTest {
 				portBytes = Arrays.copyOfRange(address, 4, 6);
 				nodePort = Integer.parseInt(SpiderUtils.bytesToHexString(portBytes), 16);
 				// System.out.println(Arrays.toString(nodeId));
-				// System.out.println(Arrays.toString(Arrays.copyOfRange(address, 0, 4)));
-				// System.out.println(Arrays.toString(Arrays.copyOfRange(address, 4, 6)));
+				// System.out.println(Arrays.toString(Arrays.copyOfRange(address,
+				// 0, 4)));
+				// System.out.println(Arrays.toString(Arrays.copyOfRange(address,
+				// 4, 6)));
 				// System.out.println("=======");
 				result.add(new NodeTest(id, nodeId, nodeIp, nodePort));
 			}

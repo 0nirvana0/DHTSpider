@@ -22,13 +22,16 @@ public class DHTClient {
 
 	/** ip地址 */
 	InetAddress inetAddress = null;
+
+	/** 端口 */
 	int port = -1;
+
 	private DatagramPacket sendPacket;
 
 	public DHTClient(String ipAdress, int port) {
 		try {
 			sender = new DatagramSocket();
-			sender.setSoTimeout(3000);
+			sender.setSoTimeout(1000);
 			this.inetAddress = InetAddress.getByName(ipAdress);
 			this.port = port;
 		} catch (UnknownHostException e) {
@@ -68,7 +71,6 @@ public class DHTClient {
 	public byte[] findNodeOnDHT(byte[] nodeId) {
 		String data = "d1:ad2:id20:" + new String(Table.getId(), StandardCharsets.ISO_8859_1) + "6:target20:"
 				+ new String(nodeId, StandardCharsets.ISO_8859_1) + "e1:q9:find_node1:t2:aa1:y1:qe";
-
 		return sendData(data);
 	}
 

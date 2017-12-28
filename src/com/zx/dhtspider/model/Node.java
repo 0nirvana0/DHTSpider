@@ -1,9 +1,9 @@
 package com.zx.dhtspider.model;
 
-import com.zx.dhtspider.test.SpiderUtils;
-
 import java.util.Arrays;
 import java.util.Comparator;
+
+import com.turn.ttorrent.util.SpiderUtils;
 
 /**
  * 节点模型

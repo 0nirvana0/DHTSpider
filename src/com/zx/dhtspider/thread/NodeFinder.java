@@ -1,10 +1,10 @@
 package com.zx.dhtspider.thread;
 
 import com.turn.ttorrent.bcodec.InvalidBEncodingException;
+import com.turn.ttorrent.util.SpiderUtils;
 import com.zx.dhtspider.model.Node;
 import com.zx.dhtspider.model.Table;
 import com.zx.dhtspider.socket.DHTClient;
-import com.zx.dhtspider.test.SpiderUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
