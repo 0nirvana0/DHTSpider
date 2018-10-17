@@ -18,7 +18,6 @@ package com.turn.ttorrent.bcodec;
 
 import java.io.IOException;
 
-
 /**
  * Exception thrown when a B-encoded stream cannot be decoded.
  *
@@ -26,7 +25,7 @@ import java.io.IOException;
  */
 public class InvalidBEncodingException extends IOException {
 
-	public static final long serialVersionUID = -1;
+	private static final long serialVersionUID = 1L;
 
 	public InvalidBEncodingException(String message) {
 		super(message);
